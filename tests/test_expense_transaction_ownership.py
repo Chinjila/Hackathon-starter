@@ -9,7 +9,7 @@ from backend.services.ai_classification_service import AIClassificationService
 from backend.services.expense_service import ExpenseService
 
 
-class _SessionContext:
+class MockSessionContext:
     def __init__(self, session):
         self.session = session
 
@@ -30,7 +30,7 @@ async def test_get_db_commits_once_after_success(monkeypatch):
     monkeypatch.setattr(
         database,
         "async_session_maker",
-        lambda: _SessionContext(session),
+        lambda: MockSessionContext(session),
     )
 
     generator = database.get_db()
@@ -56,7 +56,7 @@ async def test_get_db_rolls_back_on_exception(monkeypatch):
     monkeypatch.setattr(
         database,
         "async_session_maker",
-        lambda: _SessionContext(session),
+        lambda: MockSessionContext(session),
     )
 
     generator = database.get_db()
