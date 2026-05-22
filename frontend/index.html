@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Zava Expense Tracker - CI/CD WORKS! 🎉</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🤖 Zava - AI Spending Advisor</h1>
+            <p>Smart expense tracking with AI-powered classification</p>
+        </header>
+
+        <!-- Status Message -->
+        <div id="status-message" class="message" style="display: none;"></div>
+
+        <main>
+            <!-- Expense Input Form -->
+            <section class="expense-form-section">
+                <h2>Add New Expense</h2>
+                <form id="expense-form">
+                    <div class="form-group">
+                        <label for="description">Description *</label>
+                        <input 
+                            type="text" 
+                            id="description" 
+                            name="description" 
+                            placeholder="e.g., Grocery shopping at Whole Foods"
+                            required
+                            maxlength="500"
+                        >
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="amount">Amount *</label>
+                            <input 
+                                type="number" 
+                                id="amount" 
+                                name="amount" 
+                                placeholder="0.00"
+                                step="0.01"
+                                min="0.01"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="currency">Currency</label>
+                            <select id="currency" name="currency">
+                                <option value="USD" selected>USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category (Optional)</label>
+                        <input 
+                            type="text" 
+                            id="category" 
+                            name="category" 
+                            placeholder="e.g., Groceries, Entertainment, Savings"
+                            maxlength="100"
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Add & Classify Expense
+                    </button>
+                </form>
+            </section>
+
+            <!-- Spending Insights Summary -->
+            <section class="summary-section">
+                <h2>Spending Insights</h2>
+                <div class="summary-cards">
+                    <!-- Needs Card -->
+                    <div class="summary-card needs">
+                        <div class="card-header">
+                            <span class="card-icon">🏠</span>
+                            <h3>Needs</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-amount" id="needs-total">$0.00</div>
+                            <div class="card-percentage" id="needs-percent">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill needs" id="needs-progress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small>Essential expenses</small>
+                        </div>
+                    </div>
+
+                    <!-- Wants Card -->
+                    <div class="summary-card wants">
+                        <div class="card-header">
+                            <span class="card-icon">🎉</span>
+                            <h3>Wants</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-amount" id="wants-total">$0.00</div>
+                            <div class="card-percentage" id="wants-percent">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill wants" id="wants-progress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small>Lifestyle spending</small>
+                        </div>
+                    </div>
+
+                    <!-- Goals Card -->
+                    <div class="summary-card goals">
+                        <div class="card-header">
+                            <span class="card-icon">🎯</span>
+                            <h3>Goals</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-amount" id="goals-total">$0.00</div>
+                            <div class="card-percentage" id="goals-percent">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill goals" id="goals-progress" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small>Future investments</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Spending -->
+                <div class="total-spending">
+                    <h3>Total Spending</h3>
+                    <div class="total-amount" id="total-amount">$0.00</div>
+                </div>
+            </section>
+
+            <!-- Recent Expenses -->
+            <section class="expenses-section">
+                <h2>Recent Expenses</h2>
+                <div id="expense-list" class="expense-list">
+                    <p class="empty-state">No expenses yet. Add your first expense above!</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>Powered by Azure OpenAI | Built with FastAPI & MCP</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
