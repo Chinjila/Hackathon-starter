@@ -7,7 +7,7 @@ retrieval with filters, and summary calculations.
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict
 from datetime import datetime
 import logging
 
@@ -31,6 +31,10 @@ class ExpenseService:
     ) -> Expense:
         """
         Create a new expense with AI classification.
+
+        The database dependency owns commit/rollback. This method only stages
+        changes in the current transaction and refreshes the pending model so
+        callers can use generated fields before the request completes.
         
         Args:
             db: Database session
@@ -65,7 +69,7 @@ class ExpenseService:
         )
         
         db.add(expense)
-        await db.commit()
+        await db.flush()
         await db.refresh(expense)
         
         logger.info(f"Created expense: {expense.id} - {expense.description} ({expense.classification})")
@@ -177,7 +181,6 @@ class ExpenseService:
             return False
         
         await db.delete(expense)
-        await db.commit()
         
         logger.info(f"Deleted expense: {expense_id}")
         

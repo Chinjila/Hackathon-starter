@@ -2,11 +2,10 @@
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from typing import Optional, List
+from typing import Optional
 
 from backend.core.database import get_db
-from backend.models.expense import Expense, ExpenseClassification
+from backend.models.expense import ExpenseClassification
 from backend.services.expense_service import ExpenseService
 from pydantic import BaseModel
 
@@ -107,14 +106,8 @@ async def delete_expense(
     db: AsyncSession = Depends(get_db)
 ):
     """Delete an expense"""
-    query = select(Expense).where(Expense.id == expense_id)
-    result = await db.execute(query)
-    expense = result.scalar_one_or_none()
-    
-    if not expense:
+    deleted = await ExpenseService.delete_expense(db=db, expense_id=expense_id)
+    if not deleted:
         raise HTTPException(status_code=404, detail="Expense not found")
-    
-    await db.delete(expense)
-    await db.commit()
-    
+
     return {"message": "Expense deleted successfully"}
