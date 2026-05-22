@@ -1,14 +1,434 @@
-/* TODO: Use GitHub Copilot to create CSS styles */
-/* Ask Copilot: "Create modern CSS with dark theme, cards, forms, and buttons" */ * 
+:root {
+	--bg-page: #f4f7fb;
+	--bg-surface: #ffffff;
+	--bg-muted: #eef2f7;
+	--text-primary: #172034;
+	--text-secondary: #4f5b73;
+	--border: #d6deea;
 
-{
-margin: 0; padding: 0;
-box-sizing: border-box;
+	--needs: #1f9d57;
+	--needs-light: #e8f7ee;
+	--wants: #2d7ff9;
+	--wants-light: #eaf2ff;
+	--goals: #7f56d9;
+	--goals-light: #f2ecff;
+
+	--shadow-soft: 0 12px 32px rgba(17, 24, 39, 0.08);
+	--shadow-hover: 0 16px 30px rgba(17, 24, 39, 0.12);
+	--radius-lg: 18px;
+	--radius-md: 12px;
+	--radius-sm: 10px;
 }
 
-/* TODO: Add CSS variables for theme colors */ /* TOOO: Add body and container styles */
-/* TOOO: Add header styles */
-/* TODO: Add form styles */
-/* TODO: Add button styles */
-/* TODO: Add card/results display styles */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	color: var(--text-primary);
+	background:
+		radial-gradient(circle at 5% 5%, #dbe8ff 0%, transparent 40%),
+		radial-gradient(circle at 95% 10%, #d5f5e3 0%, transparent 35%),
+		linear-gradient(165deg, #f8fbff 0%, #f4f7fb 45%, #eef3fa 100%);
+	min-height: 100vh;
+	line-height: 1.5;
+}
+
+.container {
+	width: min(1120px, 100% - 2rem);
+	margin: 2rem auto;
+	background: rgba(255, 255, 255, 0.84);
+	backdrop-filter: blur(6px);
+	border: 1px solid rgba(255, 255, 255, 0.8);
+	border-radius: 24px;
+	box-shadow: var(--shadow-soft);
+	overflow: hidden;
+}
+
+header {
+	padding: 2.25rem 2rem 1.5rem;
+	background: linear-gradient(130deg, #f6fbff 0%, #f7fff9 45%, #faf5ff 100%);
+	border-bottom: 1px solid var(--border);
+}
+
+header h1 {
+	font-size: clamp(1.7rem, 2.2vw, 2.2rem);
+	letter-spacing: -0.02em;
+}
+
+header p {
+	margin-top: 0.4rem;
+	color: var(--text-secondary);
+}
+
+main {
+	display: grid;
+	gap: 1.25rem;
+	padding: 1.5rem 2rem 2rem;
+}
+
+section {
+	background: var(--bg-surface);
+	border-radius: var(--radius-lg);
+	border: 1px solid var(--border);
+	box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+	padding: 1.4rem;
+}
+
+section h2 {
+	margin-bottom: 1rem;
+	font-size: 1.2rem;
+}
+
+.message {
+	margin: 1rem 2rem 0;
+	padding: 0.75rem 0.95rem;
+	border-radius: var(--radius-sm);
+	border: 1px solid transparent;
+	font-size: 0.95rem;
+}
+
+.message.info {
+	background: #eef6ff;
+	color: #124785;
+	border-color: #cddff6;
+}
+
+.message.success {
+	background: #eaf9f0;
+	color: #1c6c40;
+	border-color: #cae9d5;
+}
+
+.message.error {
+	background: #fff1f1;
+	color: #952d2d;
+	border-color: #f0caca;
+}
+
+#expense-form {
+	display: grid;
+	gap: 1rem;
+}
+
+.form-group {
+	display: grid;
+	gap: 0.45rem;
+}
+
+.form-group label {
+	font-size: 0.9rem;
+	color: var(--text-secondary);
+	font-weight: 600;
+}
+
+.form-row {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.85rem;
+}
+
+input,
+select {
+	width: 100%;
+	padding: 0.75rem 0.85rem;
+	border-radius: var(--radius-sm);
+	border: 1px solid #c6d1e1;
+	background: #fcfdff;
+	color: var(--text-primary);
+	outline: none;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+input:focus,
+select:focus {
+	border-color: #4c87f7;
+	box-shadow: 0 0 0 4px rgba(76, 135, 247, 0.15);
+	background: #ffffff;
+}
+
+.btn {
+	width: fit-content;
+	border: none;
+	border-radius: 999px;
+	padding: 0.78rem 1.3rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.btn-primary {
+	color: #ffffff;
+	background: linear-gradient(135deg, #2d7ff9 0%, #1f9d57 100%);
+	box-shadow: 0 10px 18px rgba(45, 127, 249, 0.28);
+}
+
+.btn-primary:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 14px 24px rgba(45, 127, 249, 0.34);
+	filter: saturate(1.05);
+}
+
+.btn-primary:disabled {
+	opacity: 0.68;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: none;
+}
+
+.summary-cards {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0.9rem;
+}
+
+.summary-card {
+	border-radius: var(--radius-md);
+	border: 1px solid transparent;
+	padding: 0.95rem;
+	display: grid;
+	gap: 0.7rem;
+	min-height: 170px;
+}
+
+.summary-card .card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.summary-card .card-icon {
+	font-size: 1.35rem;
+}
+
+.summary-card .card-amount {
+	font-size: clamp(1.4rem, 3vw, 2rem);
+	font-weight: 800;
+	line-height: 1.2;
+}
+
+.summary-card .card-percentage {
+	color: var(--text-secondary);
+	font-weight: 700;
+}
+
+.summary-card.needs {
+	background: var(--needs-light);
+	border-color: #cdeedc;
+}
+
+.summary-card.wants {
+	background: var(--wants-light);
+	border-color: #cfe1ff;
+}
+
+.summary-card.goals {
+	background: var(--goals-light);
+	border-color: #ddcdfb;
+}
+
+.progress-bar {
+	width: 100%;
+	height: 8px;
+	border-radius: 999px;
+	background: rgba(23, 32, 52, 0.11);
+	overflow: hidden;
+}
+
+.progress-fill {
+	height: 100%;
+	border-radius: inherit;
+	transition: width 0.35s ease;
+}
+
+.progress-fill.needs {
+	background: var(--needs);
+}
+
+.progress-fill.wants {
+	background: var(--wants);
+}
+
+.progress-fill.goals {
+	background: var(--goals);
+}
+
+.total-spending {
+	margin-top: 1.1rem;
+	border-radius: var(--radius-md);
+	padding: 1rem;
+	border: 1px solid var(--border);
+	background: linear-gradient(120deg, #ffffff 0%, #f4f8ff 100%);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.total-amount {
+	font-size: clamp(1.4rem, 2.8vw, 2rem);
+	font-weight: 800;
+}
+
+.expense-list {
+	border-radius: var(--radius-md);
+	border: 1px solid var(--border);
+	overflow: hidden;
+	background: var(--bg-surface);
+}
+
+.expense-item {
+	display: grid;
+	grid-template-columns: minmax(220px, 2fr) minmax(170px, 1fr);
+	gap: 0.8rem;
+	align-items: start;
+	padding: 0.95rem 1rem;
+	border-bottom: 1px solid var(--border);
+	transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.expense-item:last-child {
+	border-bottom: 0;
+}
+
+.expense-item:nth-child(odd) {
+	background: #fbfcff;
+}
+
+.expense-item:nth-child(even) {
+	background: #f5f8fc;
+}
+
+.expense-item:hover {
+	background: #eaf2ff;
+	transform: translateX(2px);
+}
+
+.expense-info h3 {
+	font-size: 1rem;
+	margin-bottom: 0.2rem;
+}
+
+.expense-amount {
+	font-weight: 700;
+	color: #273653;
+}
+
+.expense-meta {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.4rem;
+}
+
+.classification-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	border-radius: 999px;
+	padding: 0.25rem 0.62rem;
+	font-size: 0.75rem;
+	font-weight: 800;
+	letter-spacing: 0.02em;
+	border: 1px solid transparent;
+}
+
+.classification-badge.needs {
+	color: #12633a;
+	background: var(--needs-light);
+	border-color: #bfe3cf;
+}
+
+.classification-badge.wants {
+	color: #1d4fa3;
+	background: var(--wants-light);
+	border-color: #c9dbfe;
+}
+
+.classification-badge.goals {
+	color: #5b3b9f;
+	background: var(--goals-light);
+	border-color: #d8c6f9;
+}
+
+.confidence-score {
+	font-size: 0.78rem;
+	color: var(--text-secondary);
+}
+
+.expense-reasoning {
+	grid-column: 1 / -1;
+	font-size: 0.85rem;
+	color: var(--text-secondary);
+}
+
+.empty-state,
+.error-state {
+	padding: 1.25rem;
+	text-align: center;
+	color: var(--text-secondary);
+}
+
+.error-state {
+	color: #9d2c2c;
+}
+
+footer {
+	padding: 1rem 2rem 1.5rem;
+	color: var(--text-secondary);
+	text-align: center;
+	font-size: 0.87rem;
+}
+
+@media (max-width: 900px) {
+	.container {
+		width: min(100% - 1.2rem, 1000px);
+		margin: 1rem auto;
+	}
+
+	header,
+	main,
+	footer {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+
+	.summary-cards {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.expense-item {
+		grid-template-columns: 1fr;
+	}
+
+	.expense-meta {
+		align-items: flex-start;
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+}
+
+@media (max-width: 640px) {
+	.form-row,
+	.summary-cards {
+		grid-template-columns: 1fr;
+	}
+
+	.btn {
+		width: 100%;
+		text-align: center;
+	}
+
+	.total-spending {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.summary-card {
+		min-height: auto;
+	}
+}
 
