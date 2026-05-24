@@ -45,9 +45,6 @@ param azureOpenAiApiKey string
 @description('Azure OpenAI deployment name.')
 param azureOpenAiDeploymentName string
 
-@description('Azure OpenAI API version.')
-param azureOpenAiApiVersion string
-
 @description('Allowed CORS origins.')
 param corsOrigins string = '*'
 
@@ -137,10 +134,6 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             {
               name: 'AZURE_OPENAI_DEPLOYMENT_NAME'
               value: azureOpenAiDeploymentName
-            }
-            {
-              name: 'AZURE_OPENAI_API_VERSION'
-              value: azureOpenAiApiVersion
             }
             {
               name: 'CORS_ORIGINS'

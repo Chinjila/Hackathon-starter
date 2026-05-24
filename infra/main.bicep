@@ -50,8 +50,6 @@ param azureOpenAiApiKey string
 @description('Azure OpenAI deployment name.')
 param azureOpenAiDeploymentName string
 
-@description('Azure OpenAI API version.')
-param azureOpenAiApiVersion string = '2024-02-15-preview'
 
 @description('Allowed CORS origins.')
 param corsOrigins string = '*'
@@ -130,7 +128,6 @@ module containerApp 'modules/containerapp.bicep' = {
     azureOpenAiEndpoint: azureOpenAiEndpoint
     azureOpenAiApiKey: azureOpenAiApiKey
     azureOpenAiDeploymentName: azureOpenAiDeploymentName
-    azureOpenAiApiVersion: azureOpenAiApiVersion
     corsOrigins: corsOrigins
     environment: environment
     applicationInsightsConnectionString: monitoring.outputs.applicationInsightsConnectionString
