@@ -47,7 +47,6 @@ param azureOpenAiApiKey string
 @description('Azure OpenAI deployment name.')
 param azureOpenAiDeploymentName string
 
-
 @description('Allowed CORS origins.')
 param corsOrigins string = '*'
 
@@ -118,8 +117,7 @@ module containerApp 'modules/containerapp.bicep' = {
     minReplicas: minReplicas
     maxReplicas: maxReplicas
     acrLoginServer: acr.outputs.acrLoginServer
-    acrAdminUsername: acr.outputs.acrAdminUsername
-    acrAdminPassword: acr.outputs.acrAdminPassword
+    acrName: acrName
     databaseUrl: databaseUrl
     azureOpenAiEndpoint: azureOpenAiEndpoint
     azureOpenAiApiKey: azureOpenAiApiKey

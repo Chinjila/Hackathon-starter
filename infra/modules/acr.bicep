@@ -13,14 +13,9 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
     name: 'Basic'
   }
   properties: {
-    adminUserEnabled: true
+    adminUserEnabled: false
   }
 }
 
-var credentials = acr.listCredentials()
-
 output acrName string = acr.name
 output acrLoginServer string = acr.properties.loginServer
-output acrAdminUsername string = credentials.username
-@secure()
-output acrAdminPassword string = credentials.passwords[0].value
