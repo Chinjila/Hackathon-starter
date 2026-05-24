@@ -150,7 +150,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
           ]
           resources: {
             cpu: 1
-            memory: '0.5Gi'
+            memory: '2Gi'
           }
         }
       ]
