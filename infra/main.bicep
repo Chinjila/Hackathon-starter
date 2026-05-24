@@ -4,7 +4,7 @@ targetScope = 'subscription'
 param resourceGroupName string = 'rg-azure-hackathon'
 
 @description('Azure region for the resource group and all child resources.')
-param location string = deployment().location
+param location string = 'canadacentral'
 
 @description('Name of the Azure Container Registry.')
 param acrName string
