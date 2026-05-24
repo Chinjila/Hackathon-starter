@@ -107,8 +107,8 @@ jobs:
               containerImage="${{ needs.deploy-acr-and-build.outputs.container_image }}" \
               postgresAdminPassword="${{ secrets.POSTGRES_ADMIN_PASSWORD }}" \
               azureOpenAiApiKey="${{ secrets.AZURE_OPENAI_API_KEY }}" \
-              azureOpenAiEndpoint="${{ secrets.AZURE_OPENAI_ENDPOINT }}" \
-              azureOpenAiDeploymentName="${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }}"
+              azureOpenAiEndpoint="${{ vars.AZURE_OPENAI_ENDPOINT }}" \
+              azureOpenAiDeploymentName="${{ vars.AZURE_OPENAI_DEPLOYMENT_NAME }}"
 
       - name: Print Container App URL
         run: |
