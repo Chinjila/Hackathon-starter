@@ -21,15 +21,11 @@ param minReplicas int = 0
 @description('Maximum replica count.')
 param maxReplicas int = 3
 
-@description('ACR login server.')
+@description('ACR login server hostname (e.g. myacr.azurecr.io).')
 param acrLoginServer string
 
-@description('ACR admin username.')
-param acrAdminUsername string
-
-@secure()
-@description('ACR admin password.')
-param acrAdminPassword string
+@description('Name of the Azure Container Registry (used for AcrPull role assignment).')
+param acrName string
 
 @secure()
 @description('Database connection string for the FastAPI app.')
@@ -94,15 +90,10 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
       registries: [
         {
           server: acrLoginServer
-          username: acrAdminUsername
-          passwordSecretRef: 'acr-password'
+          identity: 'system'
         }
       ]
       secrets: [
-        {
-          name: 'acr-password'
-          value: acrAdminPassword
-        }
         {
           name: 'database-url'
           value: databaseUrl
@@ -159,6 +150,24 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
         maxReplicas: maxReplicas
       }
     }
+  }
+}
+
+// Grant the Container App's system-assigned managed identity AcrPull on the registry.
+// This replaces the previous admin-credential approach.
+resource existingAcr 'Microsoft.ContainerRegistry/registries@2023-07-01' existing = {
+  name: acrName
+}
+
+var acrPullRoleDefinitionId = '7f951dda-4ed3-4680-a7ca-43fe172d538d' // AcrPull built-in role
+
+resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(existingAcr.id, containerApp.id, acrPullRoleDefinitionId)
+  scope: existingAcr
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', acrPullRoleDefinitionId)
+    principalId: containerApp.identity.principalId
+    principalType: 'ServicePrincipal'
   }
 }
 
