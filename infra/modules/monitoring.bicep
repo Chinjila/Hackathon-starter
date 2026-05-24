@@ -9,9 +9,10 @@ param logAnalyticsWorkspaceName string
 @description('Name of the Application Insights resource.')
 param appInsightsName string
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: logAnalyticsWorkspaceName
   location: location
+  #disable-next-line BCP187
   sku: {
     name: 'PerGB2018'
   }

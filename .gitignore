@@ -24,6 +24,9 @@ venv/
 env/
 ENV/
 
+# Bicep compiled output (build artifacts, not needed in repo)
+infra/*.json
+
 # Build and packaging
 build/
 dist/
