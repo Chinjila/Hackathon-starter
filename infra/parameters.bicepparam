@@ -1,8 +1,8 @@
 using './main.bicep'
 
 param resourceGroupName = 'rg-zava-hackathon'
-param location = 'eastus'
-param acrName = 'zavahackacr001'
+param location = 'eastus2'
+param acrName = 'vczavaacr'
 param containerAppEnvironmentName = 'zava-aca-env'
 param containerAppName = 'zava-api-app'
 param logAnalyticsWorkspaceName = 'zava-law'

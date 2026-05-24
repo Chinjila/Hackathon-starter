@@ -92,7 +92,6 @@ jobs:
             --template-file infra/main.bicep \
             --parameters infra/parameters.bicepparam \
             --parameters ${app_param_name}='${{ steps.app.outputs.name }}' \
-            --parameters acrName='${acr_name}' \
             --parameters postgresAdminPassword='${{ secrets.POSTGRES_ADMIN_PASSWORD }}' \
             --parameters azureOpenAiApiKey='${{ secrets.AZURE_OPENAI_API_KEY }}' \
             --parameters azureOpenAiEndpoint='${{ vars.AZURE_OPENAI_ENDPOINT }}' \
