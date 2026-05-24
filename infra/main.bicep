@@ -34,11 +34,8 @@ param postgresAdminUsername string = 'pgadmin'
 @description('PostgreSQL admin password.')
 param postgresAdminPassword string
 
-@description('Container image repository in ACR.')
-param containerImageRepository string = 'hackathon-starter'
-
-@description('Container image tag.')
-param containerImageTag string = 'latest'
+@description('Full container image reference built and pushed in Stage 1 (e.g. myacr.azurecr.io/repo:sha).')
+param containerImage string
 
 @description('Azure OpenAI endpoint.')
 param azureOpenAiEndpoint string
@@ -108,7 +105,6 @@ module database 'modules/database.bicep' = {
 }
 
 var databaseUrl = 'postgresql+asyncpg://${postgresAdminUsername}:${postgresAdminPassword}@${database.outputs.postgresServerFqdn}:5432/${database.outputs.postgresDatabaseName}'
-var containerImage = '${acr.outputs.acrLoginServer}/${containerImageRepository}:${containerImageTag}'
 
 module containerApp 'modules/containerapp.bicep' = {
   name: 'containerAppDeployment'

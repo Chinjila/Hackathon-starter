@@ -1,50 +1,46 @@
-name: Build and Deploy Container App
+name: Deploy to Azure Container Apps
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   id-token: write
   contents: read
 
+env:
+  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+
+# ---------------------------------------------------------------------------
+# Stage 1 - Deploy ACR, then build & push the Docker image
+# ---------------------------------------------------------------------------
 jobs:
-  build-push-deploy:
+  deploy-acr-and-build:
+    name: Stage 1 - Deploy ACR & Build Image
     runs-on: ubuntu-latest
 
+    outputs:
+      acr_login_server: ${{ steps.acr-output.outputs.acr_login_server }}
+      container_image: ${{ steps.acr-output.outputs.container_image }}
+      resource_group: ${{ steps.params.outputs.resource_group }}
+      acr_name: ${{ steps.params.outputs.acr_name }}
+
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Compute sanitized app name and resource group
-        id: app
-        shell: bash
+      - name: Extract params from bicepparam
+        id: params
         run: |
-          set -euo pipefail
-
-          raw_name="${{ vars.APP_NAME }}"
-          if [ -z "${raw_name}" ]; then
-            raw_name="hackathon-app"
-          fi
-
-          sanitized_name="$(echo "${raw_name}" \
-            | tr '[:upper:]' '[:lower:]' \
-            | sed -E 's/[^a-z0-9]+/-/g; s/-+/-/g; s/^-+//; s/-+$//')"
-
-          if [ -z "${sanitized_name}" ]; then
-            sanitized_name="hackathon-app"
-          fi
-
-          resource_group="$(grep -E "^[[:space:]]*param[[:space:]]+resourceGroupName[[:space:]]*=" infra/parameters.bicepparam | sed -E "s/.*=[[:space:]]*'([^']+)'.*/\1/" | head -n 1)"
-
-          if [ -z "${resource_group}" ]; then
-            echo "Could not parse resourceGroupName from infra/parameters.bicepparam"
-            exit 1
-          fi
-
-          echo "name=${sanitized_name}" >> "$GITHUB_OUTPUT"
-          echo "rg=${resource_group}" >> "$GITHUB_OUTPUT"
+          RG=$(grep 'param resourceGroupName' infra/parameters.bicepparam | sed "s/.*= '\(.*\)'/\1/")
+          ACR=$(grep 'param acrName' infra/parameters.bicepparam | sed "s/.*= '\(.*\)'/\1/")
+          LOC=$(grep 'param location' infra/parameters.bicepparam | sed "s/.*= '\(.*\)'/\1/")
+          echo "resource_group=$RG" >> "$GITHUB_OUTPUT"
+          echo "acr_name=$ACR"      >> "$GITHUB_OUTPUT"
+          echo "location=$LOC"      >> "$GITHUB_OUTPUT"
 
       - name: Azure login (OIDC)
         uses: azure/login@v2
@@ -53,89 +49,74 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Two-level infrastructure check
-        id: infra-check
-        shell: bash
+      - name: Deploy ACR (Stage 1 Bicep)
         run: |
-          set -euo pipefail
-
-          rg_result="$(az group show --name "${{ steps.app.outputs.rg }}" -o json 2>/dev/null || echo "")"
-
-          if [ -n "${rg_result}" ]; then
-            app_result="$(az containerapp show --name "${{ steps.app.outputs.name }}" --resource-group "${{ steps.app.outputs.rg }}" -o json 2>/dev/null || echo "")"
-          else
-            app_result=""
-          fi
-
-          if [ -n "${rg_result}" ] && [ -n "${app_result}" ]; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Deploy infrastructure
-        if: steps.infra-check.outputs.exists == 'false'
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          app_param_name="containerAppName"
-          if grep -Eq "^[[:space:]]*param[[:space:]]+appName[[:space:]]+string" infra/main.bicep; then
-            app_param_name="appName"
-          fi
-
-          acr_name="$(echo "${{ steps.app.outputs.name }}acr" | tr -d '-')"
-
           az deployment sub create \
-            --name "${{ steps.app.outputs.name }}-infra-${{ github.run_id }}" \
+            --name "stage1-${{ github.run_id }}" \
+            --location "${{ steps.params.outputs.location }}" \
+            --template-file infra/stage1.bicep \
+            --parameters \
+              resourceGroupName="${{ steps.params.outputs.resource_group }}" \
+              location="${{ steps.params.outputs.location }}" \
+              acrName="${{ steps.params.outputs.acr_name }}"
+
+      - name: Get ACR login server
+        id: acr-output
+        run: |
+          SERVER=$(az deployment sub show \
+            --name "stage1-${{ github.run_id }}" \
+            --query "properties.outputs.acrLoginServer.value" \
+            -o tsv)
+          IMAGE="${SERVER}/hackathon-starter:${{ github.sha }}"
+          echo "acr_login_server=$SERVER" >> "$GITHUB_OUTPUT"
+          echo "container_image=$IMAGE"   >> "$GITHUB_OUTPUT"
+
+      - name: Build & push Docker image
+        run: |
+          az acr login --name "${{ steps.params.outputs.acr_name }}"
+          docker build -t "${{ steps.acr-output.outputs.container_image }}" .
+          docker push "${{ steps.acr-output.outputs.container_image }}"
+
+# ---------------------------------------------------------------------------
+# Stage 2 - Deploy database, Container Apps Environment, and Container App
+# ---------------------------------------------------------------------------
+  deploy-app:
+    name: Stage 2 - Deploy App Infrastructure
+    runs-on: ubuntu-latest
+    needs: deploy-acr-and-build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy app infrastructure (main.bicep)
+        run: |
+          az deployment sub create \
+            --name "stage2-${{ github.run_id }}" \
             --location canadacentral \
             --template-file infra/main.bicep \
-            --parameters infra/parameters.bicepparam \
-            --parameters ${app_param_name}='${{ steps.app.outputs.name }}' \
-            --parameters postgresAdminPassword='${{ secrets.POSTGRES_ADMIN_PASSWORD }}' \
-            --parameters azureOpenAiApiKey='${{ secrets.AZURE_OPENAI_API_KEY }}' \
-            --parameters azureOpenAiEndpoint='${{ vars.AZURE_OPENAI_ENDPOINT }}' \
-            --parameters azureOpenAiDeploymentName='${{ vars.AZURE_OPENAI_DEPLOYMENT_NAME }}'
+            --parameters @infra/parameters.bicepparam \
+            --parameters \
+              containerImage="${{ needs.deploy-acr-and-build.outputs.container_image }}" \
+              postgresAdminPassword="${{ secrets.POSTGRES_ADMIN_PASSWORD }}" \
+              azureOpenAiApiKey="${{ secrets.AZURE_OPENAI_API_KEY }}" \
+              azureOpenAiEndpoint="${{ secrets.AZURE_OPENAI_ENDPOINT }}" \
+              azureOpenAiDeploymentName="${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }}"
 
-      - name: Compute ACR login server and image tag
-        id: acr
-        shell: bash
+      - name: Print Container App URL
         run: |
-          set -euo pipefail
-
-          acr_name="$(echo "${{ steps.app.outputs.name }}acr" | tr -d '-')"
-          acr_login_server="${acr_name}.azurecr.io"
-          image_tag="${acr_login_server}/${{ steps.app.outputs.name }}:${{ github.sha }}"
-
-          echo "name=${acr_name}" >> "$GITHUB_OUTPUT"
-          echo "loginServer=${acr_login_server}" >> "$GITHUB_OUTPUT"
-          echo "image=${image_tag}" >> "$GITHUB_OUTPUT"
-
-      - name: Azure Container Registry login
-        shell: bash
-        run: |
-          set -euo pipefail
-          az acr login --name "${{ steps.acr.outputs.name }}"
-
-      - name: Build and push Docker image
-        shell: bash
-        run: |
-          set -euo pipefail
-          docker build -t "${{ steps.acr.outputs.image }}" .
-          docker push "${{ steps.acr.outputs.image }}"
-
-      - name: Deploy Container App image
-        shell: bash
-        run: |
-          set -euo pipefail
-          az containerapp update \
-            --name "${{ steps.app.outputs.name }}" \
-            --resource-group "${{ steps.app.outputs.rg }}" \
-            --image "${{ steps.acr.outputs.image }}"
-
-      - name: Output Container App URL
-        shell: bash
-        run: |
-          set -euo pipefail
-          fqdn="$(az containerapp show --name "${{ steps.app.outputs.name }}" --resource-group "${{ steps.app.outputs.rg }}" --query properties.configuration.ingress.fqdn -o tsv)"
-          echo "Container App URL: https://${fqdn}" >> "$GITHUB_STEP_SUMMARY"
+          RG="${{ needs.deploy-acr-and-build.outputs.resource_group }}"
+          APP=$(grep 'param containerAppName' infra/parameters.bicepparam | sed "s/.*= '\(.*\)'/\1/")
+          URL=$(az containerapp show \
+            --name "$APP" \
+            --resource-group "$RG" \
+            --query "properties.configuration.ingress.fqdn" \
+            -o tsv)
+          echo "Container App URL: https://$URL"

@@ -1,0 +1,5 @@
+"resource_group=$RG" 
+"acr_name=$ACR"      
+"location=$LOC"      
+"acr_login_server=$SERVER" 
+"container_image=$IMAGE"   
