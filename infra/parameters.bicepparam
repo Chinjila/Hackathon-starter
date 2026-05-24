@@ -16,7 +16,6 @@ param containerImageTag = 'latest'
 param azureOpenAiEndpoint = 'https://your-resource.openai.azure.com'
 param azureOpenAiApiKey = ''
 param azureOpenAiDeploymentName = 'gpt-4o-mini'
-param azureOpenAiApiVersion = '2024-02-15-preview'
 param corsOrigins = '*'
 param environment = 'production'
 param minReplicas = 0
