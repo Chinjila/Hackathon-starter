@@ -92,7 +92,7 @@ async function addExpense(event) {
         
         // Show success message with AI classification
         showMessage(
-            `✓ Expense classified as "${result.classification.toUpperCase()}" with ${Math.round(result.confidence * 100)}% confidence. ${result.reasoning}`,
+            `✓ Expense classified as "${result.classification.toUpperCase()}" with ${Math.round(result.ai_confidence * 100)}% confidence. ${result.ai_reasoning}`,
             'success'
         );
         
