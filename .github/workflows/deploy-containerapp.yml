@@ -92,6 +92,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install Bicep & compile params
+        run: |
+          az bicep install
+          az bicep build-params --file infra/parameters.bicepparam --outfile infra/parameters.json
+
       - name: Azure login (OIDC)
         uses: azure/login@v2
         with:
@@ -105,7 +110,7 @@ jobs:
             --name "stage2-${{ github.run_id }}" \
             --location canadacentral \
             --template-file 'infra/main.bicep' \
-            --parameters @infra/parameters.bicepparam \
+            --parameters @infra/parameters.json \
             --parameters \
               containerImage="${{ needs.deploy-acr-and-build.outputs.container_image }}" \
               postgresAdminPassword="${{ secrets.POSTGRES_ADMIN_PASSWORD }}" \
