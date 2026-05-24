@@ -101,7 +101,7 @@ jobs:
           az deployment sub create \
             --name "stage2-${{ github.run_id }}" \
             --location canadacentral \
-            --template-file infra/main.bicep \
+            --template-file 'infra/main.bicep' \
             --parameters @infra/parameters.bicepparam \
             --parameters \
               containerImage="${{ needs.deploy-acr-and-build.outputs.container_image }}" \
