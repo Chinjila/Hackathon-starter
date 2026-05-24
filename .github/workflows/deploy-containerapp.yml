@@ -87,7 +87,7 @@ jobs:
           acr_name="$(echo "${{ steps.app.outputs.name }}acr" | tr -d '-')"
 
           az deployment sub create \
-            --name "${{ steps.app.outputs.name }}-infra" \
+            --name "${{ steps.app.outputs.name }}-infra-${{ github.run_id }}" \
             --location eastus2 \
             --template-file infra/main.bicep \
             --parameters infra/parameters.bicepparam \
