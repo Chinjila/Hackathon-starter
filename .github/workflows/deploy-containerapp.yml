@@ -35,6 +35,7 @@ jobs:
       - name: Extract params from bicepparam
         id: params
         run: |
+          set -euo pipefail
           RG=$(grep 'param resourceGroupName' infra/parameters.bicepparam | sed "s/.*= '\(.*\)'/\1/")
           ACR=$(grep 'param acrName' infra/parameters.bicepparam | sed "s/.*= '\(.*\)'/\1/")
           LOC=$(grep 'param location' infra/parameters.bicepparam | sed "s/.*= '\(.*\)'/\1/")
@@ -63,6 +64,7 @@ jobs:
       - name: Get ACR login server
         id: acr-output
         run: |
+          set -euo pipefail
           SERVER=$(az deployment sub show \
             --name "stage1-${{ github.run_id }}" \
             --query "properties.outputs.acrLoginServer.value" \
@@ -73,6 +75,7 @@ jobs:
 
       - name: Build & push Docker image
         run: |
+          set -euo pipefail
           az acr login --name "${{ steps.params.outputs.acr_name }}"
           docker build -t "${{ steps.acr-output.outputs.container_image }}" .
           docker push "${{ steps.acr-output.outputs.container_image }}"
@@ -112,6 +115,7 @@ jobs:
 
       - name: Print Container App URL
         run: |
+          set -euo pipefail
           RG="${{ needs.deploy-acr-and-build.outputs.resource_group }}"
           APP=$(grep 'param containerAppName' infra/parameters.bicepparam | sed "s/.*= '\(.*\)'/\1/")
           URL=$(az containerapp show \
