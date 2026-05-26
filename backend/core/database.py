@@ -33,13 +33,16 @@ class Base(DeclarativeBase):
 # Dependency for FastAPI endpoints
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
-    Dependency function that yields database sessions
+    Dependency function that yields database sessions and owns transaction finalization.
     
     Usage in FastAPI endpoints:
         @router.get("/")
         async def my_endpoint(db: AsyncSession = Depends(get_db)):
             # Use db session here
             pass
+
+    Successful requests are committed here after the endpoint returns.
+    If any exception bubbles up, the session is rolled back here.
     """
     async with async_session_maker() as session:
         try:
